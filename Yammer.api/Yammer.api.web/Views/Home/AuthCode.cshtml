@@ -1,0 +1,204 @@
+﻿@model Yammer.api.User
+
+@{
+    ViewBag.Title = "AuthCode";
+}
+
+<h2>AuthCode</h2>
+
+<fieldset>
+    <legend>User</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.job_title)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.job_title)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.network_id)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.network_id)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.url)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.url)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.show_ask_for_photo)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.show_ask_for_photo)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.web_url)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.web_url)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.birth_date)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.birth_date)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.type)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.type)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.activated_at)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.activated_at)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.summary)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.summary)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.department)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.department)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.timezone)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.timezone)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.full_name)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.full_name)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.interests)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.interests)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.network_name)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.network_name)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.significant_other)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.significant_other)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.kids_names)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.kids_names)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.name)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.name)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.verified_admin)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.verified_admin)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.location)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.location)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.expertise)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.expertise)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.can_broadcast)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.can_broadcast)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.mugshot_url)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.mugshot_url)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.mugshot_url_template)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.mugshot_url_template)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.admin)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.admin)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.first_name)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.first_name)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.state)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.state)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.last_name)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.last_name)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
