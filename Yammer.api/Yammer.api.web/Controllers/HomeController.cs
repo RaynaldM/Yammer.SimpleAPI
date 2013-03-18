@@ -15,8 +15,8 @@ namespace Yammer.api.web.Controllers
             {
                 return this._myYammer ?? (this._myYammer = this._yammerToken != null
                                                                ? new YammerClient(this._yammerToken)
-                                                               : new YammerClient("Your_client_ID",
-                                                                                  "Your_client_secret",
+                                                               : new YammerClient("Your_clientID",
+                                                                                  "Your_SecretKey",
                                                                                   Request.Url.AbsoluteUri +
                                                                                   Url.Action("AuthCode"),
                                                                                   this._yammerCode));
@@ -27,7 +27,11 @@ namespace Yammer.api.web.Controllers
 
         public ActionResult Index()
         {
-            var model = new IndexViewModel();
+            var model = new IndexViewModel
+            {
+                ClientId = "Your_clientID",
+                ClientSecret = "Your_SecretKey"
+            };
             return View(model);
         }
 
@@ -48,9 +52,9 @@ namespace Yammer.api.web.Controllers
             {
                 this._yammerCode = code;
                 this._yammerToken = this.MyYammerClient.GetToken();
-                //var l = this.MyYammerClient.GetUsers();
+                var l = this.MyYammerClient.GetUsers();
                 //var tk= this.MyYammerClient.GetImpersonateTokens();
-                //var i = this.MyYammerClient.SendInvitation("youmail");
+               // var i = this.MyYammerClient.SendInvitation("test@test.fr");
                 //var m = this.MyYammerClient.PostMessage("A test from here", 0, "Event" topic);
                 return View(this.MyYammerClient.GetUserInfo());
             }

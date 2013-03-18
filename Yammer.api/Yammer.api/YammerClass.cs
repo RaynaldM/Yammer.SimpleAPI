@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Yammer.api
 {
@@ -54,6 +55,24 @@ namespace Yammer.api
         public List<EmailAddress> email_addresses { get; set; }
     }
 
+    public class PreviousCompany
+    {
+        public object start_year { get; set; }
+        public object employer { get; set; }
+        public object description { get; set; }
+        public object position { get; set; }
+        public object end_year { get; set; }
+    }
+
+    public class School
+    {
+        public object school { get; set; }
+        public object start_year { get; set; }
+        public object degree { get; set; }
+        public object description { get; set; }
+        public object end_year { get; set; }
+    }
+
     public class Settings
     {
         public string xdr_proxy { get; set; }
@@ -105,6 +124,48 @@ namespace Yammer.api
         public UserStats stats { get; set; }
         public string state { get; set; }
         public string last_name { get; set; }
+    }
+
+    // I don't know why there is 2 different class of user (depend where come from) 
+    public class User2
+    {
+        public Contact contact { get; set; }
+        public string department { get; set; }
+        public string network_name { get; set; }
+        public bool show_ask_for_photo { get; set; }
+        public List<string> network_domains { get; set; }
+        public List<string> external_urls { get; set; }
+        public string timezone { get; set; }
+        public Settings settings { get; set; }
+        public string name { get; set; }
+        public string mugshot_url { get; set; }
+        public int network_id { get; set; }
+        public string birth_date { get; set; }
+        public string admin { get; set; }
+        public string type { get; set; }
+        public string kids_names { get; set; }
+        public string can_broadcast { get; set; }
+        public string interests { get; set; }
+        public string significant_other { get; set; }
+        public string last_name { get; set; }
+        public int id { get; set; }
+        public string job_title { get; set; }
+        public string verified_admin { get; set; }
+        public Stats stats { get; set; }
+        public string state { get; set; }
+        public string expertise { get; set; }
+        public string mugshot_url_template { get; set; }
+        public List<PreviousCompany> previous_companies { get; set; }
+        public object guid { get; set; }
+        public string activated_at { get; set; }
+        public string full_name { get; set; }
+        public List<School> schools { get; set; }
+        public string summary { get; set; }
+        public string first_name { get; set; }
+        public object hire_date { get; set; }
+        public string url { get; set; }
+        public string web_url { get; set; }
+        public string location { get; set; }
     }
 
     public class ProfileFieldsConfig
@@ -214,7 +275,7 @@ namespace Yammer.api
         public string og_object_type { get; set; } // – The type of your object, e.g., “employee”. Must be a supported type.
         public string og_site_name { get; set; } //– An identifier to relate objects from a common domain, e.g., “Yammer Blog”.
         public string og_meta { get; set; } //– Structured metadata about this object that can be used by clients for custom rendering.
-        public string og_fetch { get; set; } //– Fetch Open Graph attributes over the Internet. (default: false)
+        public bool og_fetch { get; set; } //– Fetch Open Graph attributes over the Internet. (default: false)
     }
 
     public class Stats
@@ -285,6 +346,51 @@ namespace Yammer.api
         public List<Message> messages { get; set; }
         public List<Reference> references { get; set; }
         public Meta meta { get; set; }
+    }
+    #endregion
+
+    #region Activity
+    public class Actor
+    {
+        public string name { get; set; }
+        public string email { get; set; }
+    }
+
+    public class Video
+    {
+        public int width { get; set; }
+        public int height { get; set; }
+    }
+
+    public class ActivityObject
+    {
+        public string type { get; set; }
+        public string image { get; set; }
+        public string title { get; set; }
+        public string url { get; set; }
+        public string description { get; set; }
+        public Video video { get; set; }
+    }
+
+    public class UserForActivity
+    {
+        public string email { get; set; }
+        public string name { get; set; }
+    }
+
+    public class Activity
+    {
+        public Actor actor { get; set; }
+        public string action { get; set; }
+        public ActivityObject @object { get; set; }
+        public Boolean @private { get; set; }
+        public string message { get; set; }
+        public List<UserForActivity> users { get; set; }
+    }
+
+    public class MultipleActivities
+    {
+        public List<Activity> activity { get; set; }
     }
     #endregion
 }
