@@ -6,25 +6,7 @@ namespace Yammer.api.web.Controllers
 {
     public class HomeController : Controller
     {
-        private  String _yammerCode;
-        private  String _yammerToken;
-        private YammerClient _myYammer;
-        protected YammerClient MyYammerClient
-        {
-            get
-            {
-                return this._myYammer ?? (this._myYammer = this._yammerToken != null
-                                                               ? new YammerClient(this._yammerToken)
-                                                               : new YammerClient("Your_clientID",
-                                                                                  "Your_SecretKey",
-                                                                                  Request.Url.AbsoluteUri +
-                                                                                  Url.Action("AuthCode"),
-                                                                                  this._yammerCode));
-            }
-        }
-        //
         // GET: /Home/
-
         public ActionResult Index()
         {
             var model = new IndexViewModel
@@ -40,7 +22,16 @@ namespace Yammer.api.web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var url = this.MyYammerClient.GetLoginLinkUri();
+                var myConfig = new ClientConfigurationContainer
+                                   {
+                                                              ClientCode = null,
+                                                              ClientId = model.ClientId,
+                                                              ClientSecret = model.ClientSecret,
+                                                              RedirectUri = Request.Url.AbsoluteUri + Url.Action("AuthCode")
+                                                          };
+                var myYammer = new YammerClient(myConfig);
+                var url = myYammer.GetLoginLinkUri();
+                this.TempData["YammerConfig"] = myConfig;
                 return Redirect(url);
             }
             return View(model);
@@ -50,13 +41,15 @@ namespace Yammer.api.web.Controllers
         {
             if (!String.IsNullOrWhiteSpace(code))
             {
-                this._yammerCode = code;
-                this._yammerToken = this.MyYammerClient.GetToken();
-                var l = this.MyYammerClient.GetUsers();
-                //var tk= this.MyYammerClient.GetImpersonateTokens();
-               // var i = this.MyYammerClient.SendInvitation("test@test.fr");
-                //var m = this.MyYammerClient.PostMessage("A test from here", 0, "Event" topic);
-                return View(this.MyYammerClient.GetUserInfo());
+                var myConfig = this.TempData["YammerConfig"] as ClientConfigurationContainer;
+                myConfig.ClientCode = code;
+                var myYammer = new YammerClient(myConfig);
+                // var yammerToken = myYammer.GetToken();
+                // var l = myYammer.GetUsers();
+                // var t= myYammer.GetImpersonateTokens();
+                // var i = myYammer.SendInvitation("test@test.fr");
+                // var m = myYammer.PostMessage("A test from here", 0, "Event" topic);
+                return View(myYammer.GetUserInfo());
             }
             return null;
         }

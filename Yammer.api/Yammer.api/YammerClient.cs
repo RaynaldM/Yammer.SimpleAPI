@@ -150,12 +150,13 @@ namespace Yammer.api
             request.AddObject(new
                                          {
                                              client_id = _configuration.ClientId,
-                                             redirect_uri = _configuration.RedirectUri,
+                                             redirect_uri = "{0}",//_configuration.RedirectUri,
                                              state
                                          });
 
 
-            return this.YammerRestClient.BuildUri(request).ToString();
+            var uri=this.YammerRestClient.BuildUri(request).ToString();
+            return String.Format(uri, _configuration.RedirectUri);
         }
 
         /// <summary>
