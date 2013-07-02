@@ -229,13 +229,16 @@ namespace Yammer.api
             if (usr != null)
             {
                 var tokens = this.GetImpersonateTokens();
-                var impersonate = tokens.FirstOrDefault(p => p.user_id == usr.id);
-                if (impersonate != null)
-                    sRet = impersonate.token;
-                else if (obtainToken)
+                if (tokens != null && tokens.Any())
                 {
-                    // try to obtain a impersonate token (work only for verified admin)
-                    sRet = this.AskImpersonateToken(usr.id);
+                    var impersonate = tokens.FirstOrDefault(p => p.user_id == usr.id);
+                    if (impersonate != null)
+                        sRet = impersonate.token;
+                    else if (obtainToken)
+                    {
+                        // try to obtain a impersonate token (work only for verified admin)
+                        sRet = this.AskImpersonateToken(usr.id);
+                    }
                 }
             }
             return sRet;
