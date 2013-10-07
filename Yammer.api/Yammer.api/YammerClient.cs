@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
 using RestSharp;
+using RestSharp.Deserializers;
 
 namespace Yammer.api
 {
@@ -433,7 +433,9 @@ namespace Yammer.api
             // response sent in JSON format and deserialized
             try
             {
-                var ret = JsonConvert.DeserializeObject<T>(response.Content);
+                var  deserializer=new JsonDeserializer();
+
+                var ret = deserializer.Deserialize<T>(response);//  JsonConvert.DeserializeObject<T>(response.Content);
                 return ret;
             }
             catch (Exception)
