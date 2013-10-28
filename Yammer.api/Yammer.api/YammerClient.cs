@@ -155,7 +155,7 @@ namespace Yammer.api
                                          });
 
 
-            var uri=this.YammerRestClient.BuildUri(request).ToString();
+            var uri = this.YammerRestClient.BuildUri(request).ToString();
             return String.Format(uri, _configuration.RedirectUri);
         }
 
@@ -422,7 +422,10 @@ namespace Yammer.api
             }
 
             var request = new RestRequest { Resource = restService, Method = method };
-            request.AddHeader("Authorization", "Bearer " + this.AccessToken);
+            if (this.AccessToken != null)
+            {
+                request.AddHeader("Authorization", "Bearer " + this.AccessToken);
+            }
             if (objectForRequest != null)
             {
                 request.AddObject(objectForRequest);
@@ -433,7 +436,7 @@ namespace Yammer.api
             // response sent in JSON format and deserialized
             try
             {
-                var  deserializer=new JsonDeserializer();
+                var deserializer = new JsonDeserializer();
 
                 var ret = deserializer.Deserialize<T>(response);//  JsonConvert.DeserializeObject<T>(response.Content);
                 return ret;
