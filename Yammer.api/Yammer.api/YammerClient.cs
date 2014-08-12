@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using RestSharp;
 using RestSharp.Deserializers;
@@ -363,6 +365,7 @@ namespace Yammer.api
         }
 
         // todo : implemente impersonation
+        [Obsolete("Don't use this method, it should be refactored")]
         public String PostActivity(Actor actor, String action, ActivityObject activityObject, String message,
             Boolean @private, List<UserForActivity> users)
         {
@@ -413,7 +416,7 @@ namespace Yammer.api
         /// <param name="objectForRequest">Other parameters embedded in an object</param>
         /// <param name="getAuth">Try to get token</param>
         /// <returns>The JSON response parse in T type</returns>
-        private T YammerRequest<T>(String restService, Method method = Method.GET, Object objectForRequest = null, Boolean getAuth = true)
+        public T YammerRequest<T>(String restService, Method method = Method.GET, Object objectForRequest = null, Boolean getAuth = true)
             where T : class
         {
             if (getAuth && String.IsNullOrWhiteSpace(this.AccessToken))
@@ -428,7 +431,10 @@ namespace Yammer.api
             }
             if (objectForRequest != null)
             {
-                request.AddObject(objectForRequest);
+                //Request Format set to JSON and AddBody instead of AddObject 
+                //are necessary to allow posting complex objects (such as the Activity object)
+                request.RequestFormat = DataFormat.Json;
+                request.AddBody(objectForRequest);
             }
 
             var response = this.YammerRestClient.Execute(request);
@@ -437,12 +443,12 @@ namespace Yammer.api
             try
             {
                 var deserializer = new JsonDeserializer();
-
                 var ret = deserializer.Deserialize<T>(response);//  JsonConvert.DeserializeObject<T>(response.Content);
                 return ret;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Trace.TraceError("Exception in YammerRequest: {0} | Source:{1} | StackTrace:{2}", ex.Message, ex.Source, ex.StackTrace);
                 return null;
             }
         }
