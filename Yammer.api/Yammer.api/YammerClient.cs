@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using RestSharp;
@@ -8,7 +7,7 @@ using RestSharp.Deserializers;
 
 namespace Yammer.api
 {
-    public class YammerClient
+    public partial class YammerClient
     {
         private const String YammerBaseUrl = "https://www.yammer.com";
         /// <summary>
