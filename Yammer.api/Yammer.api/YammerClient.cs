@@ -414,8 +414,10 @@ namespace Yammer.api
         /// <param name="method">Get or Post</param>
         /// <param name="objectForRequest">Other parameters embedded in an object</param>
         /// <param name="getAuth">Try to get token</param>
+        /// <param name="useBody">Indicate to use AddBody (true : default) or AddObject (false)</param>
         /// <returns>The JSON response parse in T type</returns>
-        public T YammerRequest<T>(String restService, Method method = Method.GET, Object objectForRequest = null, Boolean getAuth = true)
+        public T YammerRequest<T>(String restService, Method method = Method.GET, Object objectForRequest = null,
+            Boolean getAuth = true, Boolean useBody = true)
             where T : class
         {
             if (getAuth && String.IsNullOrWhiteSpace(this.AccessToken))
@@ -433,7 +435,14 @@ namespace Yammer.api
                 //Request Format set to JSON and AddBody instead of AddObject 
                 //are necessary to allow posting complex objects (such as the Activity object)
                 request.RequestFormat = DataFormat.Json;
-                request.AddBody(objectForRequest);
+                if (useBody)
+                {
+                    request.AddBody(objectForRequest);
+                }
+                else
+                {
+                    request.AddObject(objectForRequest);
+                }
             }
 
             var response = this.YammerRestClient.Execute(request);
