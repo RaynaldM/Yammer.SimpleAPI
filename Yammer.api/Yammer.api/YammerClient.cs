@@ -19,47 +19,51 @@ namespace Yammer.api
         /// </summary>
         private const String ImpersonateUsersService = "/api/v1/oauth/tokens.json";
         /// <summary>
-        /// Defines URI of  preauthorized oauth access token for a given user_id/consumer_key combination.
+        /// Defines URI of preauthorized oauth access token for a given user_id/consumer_key combination.
         /// </summary>
         private const String ImpersonateTokenService = "/api/v1/oauth.json";
         /// <summary> 
-        /// Defines URI of service which redirect to login/autorized
+        /// Defines URI of service which redirects to login/authorized.
         /// </summary>
         private const String AccessCodeService = "/dialog/oauth";
         /// <summary>
-        /// Defines URI of service which sends invitation to user
+        /// Defines URI of service which sends invitation to user.
         /// </summary>
         private const String InvitationsService = "/api/v1/invitations.json";
         /// <summary>
-        /// Defines URI of service which get user info/details by mail.
+        /// Defines URI of service which gets user info/details by mail.
         /// </summary>
         private const String UserServiceByMail = "api/v1/users/by_email.json";
         /// <summary>
-        /// Defines URI of service which get users list.
+        /// Defines URI of service which gets users list.
         /// </summary>
         private const String UsersService = "api/v1/users.json";
         /// <summary>
-        /// Defines URI of service which get users list.
+        /// Defines URI of service which gets currently authenticated user.
         /// </summary>
         private const String CurrentUserService = "api/v1/users/current.json";
         /// <summary>
-        /// Defines URI of service which post a message
+        /// Defines URI of service which posts and gets messages.
         /// </summary>
         private const String PostMessageService = "api/v1/messages.json";
         /// <summary>
-        /// Standard configuration container
+        /// Defines URI of service which handles private (instant) messages.
+        /// </summary>
+        private const String PrivateMessageService = "api/v1/messages/private.json";
+        /// <summary>
+        /// Standard configuration container.
         /// </summary>
         private readonly ClientConfigurationContainer _configuration;
         /// <summary>
-        /// Contain current user info when we obtain a token
+        /// Contain current user info when we obtain a token.
         /// </summary>
         private UserRootObject _userRootObject;
         /// <summary>
-        /// Persistant Rest client for Yammer
+        /// Persistent REST client for Yammer.
         /// </summary>
         private RestClient _yammerRestClient;
         /// <summary>
-        /// Accessor to a singleton request (restsharp) object
+        /// Accessor to a singleton request (RestSharp) object.
         /// </summary>
         protected RestClient YammerRestClient
         {
@@ -76,7 +80,7 @@ namespace Yammer.api
 
         private List<User> _cachedYammerUsers;
         /// <summary>
-        /// A cached list of known users from Yammer
+        /// A cached list of known Yammer users.
         /// </summary>
         public List<User> YammerUsers
         {
@@ -89,7 +93,7 @@ namespace Yammer.api
         }
 
         /// <summary>
-        /// Access token returned by provider. Can be used for further calls of provider API.
+        /// Access token returned by the provider. Can be used for further calls to provider API.
         /// </summary>
         public string AccessToken { get; private set; }
         /// <summary>
@@ -102,8 +106,8 @@ namespace Yammer.api
         }
 
         /// <summary>
-        /// Set a new Authorisation (from a user)
-        /// And try to get a new token (for this user) 
+        /// Set a new Authorization (from a user)
+        /// And try to get a new token (for this user). 
         /// </summary>
         /// <param name="code"></param>
         public void SetAuthorizationCode(String code)
@@ -127,18 +131,18 @@ namespace Yammer.api
                             string token = null)
             : this(
                 new ClientConfigurationContainer
-                    {
-                        ClientId = clientId,
-                        ClientSecret = secretKey,
-                        ClientCode = code,
-                        RedirectUri = redirect
-                    })
+                {
+                    ClientId = clientId,
+                    ClientSecret = secretKey,
+                    ClientCode = code,
+                    RedirectUri = redirect
+                })
         {
             this.AccessToken = token;
         }
 
         /// <summary>
-        /// Returns URI of service which should be called in order to start authentication process.
+        /// Returns URI of service which should be called in order to start the authentication process.
         /// This URI should be used for rendering login link.
         /// </summary>
         /// <remarks>
@@ -149,11 +153,11 @@ namespace Yammer.api
             var request = new RestRequest { Resource = AccessCodeService };
 
             request.AddObject(new
-                                         {
-                                             client_id = _configuration.ClientId,
-                                             redirect_uri = "{0}",//_configuration.RedirectUri,
-                                             state
-                                         });
+            {
+                client_id = _configuration.ClientId,
+                redirect_uri = "{0}",//_configuration.RedirectUri,
+                state
+            });
 
 
             var uri = this.YammerRestClient.BuildUri(request).ToString();
@@ -161,9 +165,9 @@ namespace Yammer.api
         }
 
         /// <summary>
-        /// Get current user info
+        /// Get current user info.
         /// </summary>
-        /// <returns>Yammer User info</returns>
+        /// <returns>Yammer User object</returns>
         public User GetUserInfo()
         {
             if (String.IsNullOrWhiteSpace(this.AccessToken))
@@ -174,9 +178,9 @@ namespace Yammer.api
         }
 
         /// <summary>
-        /// Get an app token
+        /// Get an access token.
         /// </summary>
-        /// <returns>the token</returns>
+        /// <returns>The access token</returns>
         public String GetToken()
         {
             if (String.IsNullOrWhiteSpace(this.AccessToken))
@@ -187,30 +191,30 @@ namespace Yammer.api
         }
 
         /// <summary>
-        /// Check if the user exist in Yammer
+        /// Check if the user exists in Yammer.
         /// </summary>
-        /// <param name="mail">Mail address of the user</param>
-        /// <returns>True = he is in Yammer</returns>
+        /// <param name="mail">The email address of the user</param>
+        /// <returns>True = Is in Yammer</returns>
         public Boolean ExistUser(String mail)
         {
             return this.GetUserByMail(mail) != null;
         }
 
         /// <summary>
-        /// iInd a user in the cached list of users
+        /// Find a user in the cached user list.
         /// </summary>
-        /// <param name="mail">The mail to find</param>
-        /// <returns>User info (or null if not found)</returns>
+        /// <param name="mail">The email address to find</param>
+        /// <returns>The User object (or NULL if not found)</returns>
         public User FindUserFromYammerList(String mail)
         {
             return mail == null ? null : this.GetUsers().FirstOrDefault(user => user.contact.email_addresses.Exists(p => p.address == mail));
         }
 
         /// <summary>
-        /// Find a user by his mail
+        /// Find a user by his email.
         /// </summary>
-        /// <param name="mail">The mail of user</param>
-        /// <returns>User (2nd type of object) info (or null if not found)</returns>
+        /// <param name="mail">The email address to find</param>
+        /// <returns>The User2 object (or NULL if not found)</returns>
         public User2 GetUserByMail(String mail)
         {
             return String.IsNullOrWhiteSpace(mail) ? null : (this.YammerRequest<User2>(UserServiceByMail, Method.GET, new { email = mail }));
@@ -218,11 +222,11 @@ namespace Yammer.api
 
         /// <summary>
         /// Try to obtain a user's token
-        /// - try different methods to obtain it
+        /// - try different methods to obtain this.
         /// </summary>
-        /// <param name="mail">The user mail</param>
-        /// <param name="obtainToken">force to ask an explicit impersonation</param>
-        /// <returns>The token (or null)</returns>
+        /// <param name="mail">The email address to find</param>
+        /// <param name="obtainToken">Force to ask an explicit impersonation</param>
+        /// <returns>The access token (or NULL if not found)</returns>
         public String GetTokenFromUser(String mail, Boolean obtainToken = false)
         {
             String sRet = null;
@@ -237,7 +241,7 @@ namespace Yammer.api
                         sRet = impersonate.token;
                     else if (obtainToken)
                     {
-                        // try to obtain a impersonate token (work only for verified admin)
+                        // Try to obtain an impersonation token (works only for a verified admin).
                         sRet = this.AskImpersonateToken(usr.id);
                     }
                 }
@@ -245,9 +249,14 @@ namespace Yammer.api
             return sRet;
         }
 
+        /// <summary>
+        /// Request an access token to impersonate the specified user.
+        /// </summary>
+        /// <param name="userId">The User object ID</param>
+        /// <returns>The access token string</returns>
         private String AskImpersonateToken(int userId)
         {
-            // todo : must be finished when I have sufficient right
+            // TO-DO : Must be finished when we have sufficient rights.
             var request = new RestRequest { Resource = ImpersonateTokenService, Method = Method.POST };
             request.AddHeader("Authorization", "Bearer " + this.AccessToken);
             var objectForRequest = new { user_id = userId, consumer_key = this._configuration.ClientId };
@@ -261,17 +270,17 @@ namespace Yammer.api
         }
 
         /// <summary>
-        /// Send an invitation ti a new user
+        /// Send an invitation to a new user.
         /// </summary>
-        /// <param name="mailAdress">EMaik address of the new user</param>
-        /// <returns>Status ok if it's done</returns>
+        /// <param name="mailAdress">Email address of the new user</param>
+        /// <returns>Status == OK if it's completed</returns>
         public SendInvitationResult SendInvitation(String mailAdress)
         {
             return (this.YammerRequest<SendInvitationResult>(InvitationsService, Method.POST, new { email = mailAdress }));
         }
 
         /// <summary>
-        /// Send an invitation ti a new user
+        /// Obtain the User object for the currently authenticated user.
         /// </summary>
         /// <returns>The current user (the owner of token)</returns>
         public User GetCurrentUser()
@@ -280,51 +289,51 @@ namespace Yammer.api
         }
 
         /// <summary>
-        /// Post a simple message
+        /// Post a simple group message.
         /// </summary>
-        /// <param name="messageToPost">Body</param>
-        /// <param name="groupId">The group where I post the message</param>
-        /// <param name="topic">topic of the message</param>
-        /// <returns>a completed message (with the id)</returns>
+        /// <param name="messageToPost">The message body</param>
+        /// <param name="groupId">The group where the message will appear</param>
+        /// <param name="topic">The message topic</param>
+        /// <returns>The message object (with its returned ID)</returns>
         public MessagesRootObject PostMessage(String messageToPost, long groupId, String topic)
         {
             return this.PostAnyMessage(new { body = messageToPost, group_id = groupId, topic1 = topic });
         }
 
         /// <summary>
-        /// Post a message with an open graph object
+        /// Post a message with an OpenGraph object.
         /// </summary>
-        /// <param name="messageToPost">Body</param>
-        /// <param name="groupId">The group where I post the message</param>
-        /// <param name="topic">topic of the message</param>
-        /// <param name="og">OpenGraph object</param>
-        /// <returns></returns>
+        /// <param name="messageToPost">The message body</param>
+        /// <param name="groupId">The group where the message will appear</param>
+        /// <param name="topic">The message topic</param>
+        /// <param name="og">The OpenGraph object</param>
+        /// <returns>The message object (with its returned ID)</returns>
         public MessagesRootObject PostMessage(String messageToPost, long groupId, String topic, OpenGraphInMessage og)
         {
             return this.PostAnyMessage(new
-             {
-                 body = messageToPost,
-                 group_id = groupId,
-                 topic1 = topic,
-                 og.og_url,
-                 og.og_title,
-                 og.og_image,
-                 og.og_description,
-                 og.og_object_type,
-                 og.og_site_name,
-                 og.og_meta,
-                 og.og_fetch
-             });
+            {
+                body = messageToPost,
+                group_id = groupId,
+                topic1 = topic,
+                og.og_url,
+                og.og_title,
+                og.og_image,
+                og.og_description,
+                og.og_object_type,
+                og.og_site_name,
+                og.og_meta,
+                og.og_fetch
+            });
         }
 
         /// <summary>
-        /// Post a message with an open graph object
+        /// Post a message with an OpenGraph object and multiple topics.
         /// </summary>
-        /// <param name="messageToPost">Body</param>
-        /// <param name="groupId">The group where I post the message</param>
-        /// <param name="topics">List of topics</param>
-        /// <param name="og">OpenGraph object</param>
-        /// <returns></returns>
+        /// <param name="messageToPost">The messsage body</param>
+        /// <param name="groupId">The group where the message will appear</param>
+        /// <param name="topics">The list of topics</param>
+        /// <param name="og">The OpenGraph object</param>
+        /// <returns>The message object (with its returned ID)</returns>
         public MessagesRootObject PostMessage(String messageToPost, long groupId, List<String> topics, OpenGraphInMessage og)
         {
             return this.PostAnyMessage(new
@@ -346,76 +355,102 @@ namespace Yammer.api
         }
 
         /// <summary>
-        /// Get all users list
+        /// Post a private message to specific user.
         /// </summary>
-        /// <returns>A list of Yammer users</returns>
+        /// <param name="messageToPost">The message body</param>
+        /// <param name="userId">The receipient's ID</param>
+        /// <param name="topic">The message topic (NULL for the private message type)</param>
+        /// <returns>The message object (with its returned ID)</returns>
+        public MessagesRootObject PostInstantMessage(string messageToPost, long userId, string topic = null)
+        {
+            return this.PostAnyMessage(new { body = messageToPost, direct_to_id = userId, topic1 = topic });
+        }
+
+        /// <summary>
+        /// Retrieve all private message objects, based on the DateTime argument.
+        /// </summary>
+        /// <param name="newerThan">The cutoff timestamp (UTC formatted)</param>
+        /// <returns>A list of message objects</returns>
+        public List<Message> RetrieveInstantMessages(DateTime newerThan)
+        {
+            var messages = this.YammerRequest<MessagesRootObject>(PrivateMessageService, Method.GET).messages;
+            List<Message> newerMessages = (from m in messages
+                                           where DateTime.Parse(m.created_at).ToUniversalTime() >= newerThan.ToUniversalTime()
+                                           select m).ToList();
+            return newerMessages;
+        }
+
+        /// <summary>
+        /// Get a list of all users.
+        /// </summary>
+        /// <returns>A list of User objects</returns>
         public List<User> GetUsers()
         {
             return (this.YammerUsers);
         }
 
         /// <summary>
-        /// Get all users impersonante token
+        /// Get a list of all user's impersonation tokens.
         /// </summary>
-        /// <returns>a list of yammer impersonante info</returns>
+        /// <returns>A list of Impersonante objects</returns>
         public List<Impersonate> GetImpersonateTokens()
         {
             return (this.YammerRequest<List<Impersonate>>(ImpersonateUsersService));
         }
 
-        // todo : implemente impersonation
+        // TO-DO : Implement impersonation.
         [Obsolete("Don't use this method, it should be refactored")]
         public String PostActivity(Actor actor, String action, ActivityObject activityObject, String message,
             Boolean @private, List<UserForActivity> users)
         {
             return (this.YammerRequest<String>(InvitationsService, Method.POST,
                                                new
+                                               {
+                                                   activity = new Activity
                                                    {
-                                                       activity = new Activity
-                                                                      {
-                                                                          actor = actor,
-                                                                          action = action,
-                                                                          @object = activityObject,
-                                                                          message = message,
-                                                                          @private = @private,
-                                                                          users = users
-                                                                      }
-                                                   }));
+                                                       actor = actor,
+                                                       action = action,
+                                                       @object = activityObject,
+                                                       message = message,
+                                                       @private = @private,
+                                                       users = users
+                                                   }
+                                               }));
         }
 
         /// <summary>
-        /// Query for access token and parses response.
+        /// Query for access token and parse the response.
         /// </summary>
         public void GetAccessToken()
         {
-            this._userRootObject = this.YammerRequest<UserRootObject>(AccessTokenService, Method.GET, new
-                                                                                             {
-                                                                                                 code =
+            this._userRootObject = this.YammerRequest<UserRootObject>(AccessTokenService, Method.POST, new
+            {
+                code =
                                                                                              _configuration.ClientCode,
-                                                                                                 client_id =
+                client_id =
                                                                                              _configuration.ClientId,
-                                                                                                 client_secret =
+                client_secret =
                                                                                              _configuration.ClientSecret,
-                                                                                                 redirect_uri =
+                redirect_uri =
                                                                                              _configuration.RedirectUri,
-                                                                                                 grant_type =
+                grant_type =
                                                                                              "authorization_code"
-                                                                                             }, false);
+            }, false);
 
 
             this.AccessToken = this._userRootObject != null ? this._userRootObject.access_token.token : null;
         }
 
         /// <summary>
-        /// Query Yammer and parse JSON response in define object
+        /// Query Yammer and parse JSON response to define the object.
         /// </summary>
-        /// <typeparam name="T">Object type Expected</typeparam>
-        /// <param name="restService">Service uri to query</param>
-        /// <param name="method">Get or Post</param>
+        /// <typeparam name="T">Object type expected</typeparam>
+        /// <param name="restService">Service URI to query</param>
+        /// <param name="method">GET or POST</param>
         /// <param name="objectForRequest">Other parameters embedded in an object</param>
-        /// <param name="getAuth">Try to get token</param>
+        /// <param name="getAuth">Try to get the access token</param>
         /// <param name="useBody">Indicate to use AddBody (true : default) or AddObject (false)</param>
-        /// <returns>The JSON response parse in T type</returns>
+        /// <returns>The JSON response parse of type T</returns>
         public T YammerRequest<T>(String restService, Method method = Method.GET, Object objectForRequest = null,
             Boolean getAuth = true, Boolean useBody = true)
             where T : class
@@ -432,8 +467,8 @@ namespace Yammer.api
             }
             if (objectForRequest != null)
             {
-                //Request Format set to JSON and AddBody instead of AddObject 
-                //are necessary to allow posting complex objects (such as the Activity object)
+                // Request format set to JSON and AddBody instead of AddObject 
+                // is necessary to allow posting complex objects (such as the Activity object).
                 request.RequestFormat = DataFormat.Json;
                 if (useBody)
                 {
@@ -447,25 +482,25 @@ namespace Yammer.api
 
             var response = this.YammerRestClient.Execute(request);
 
-            // response sent in JSON format and deserialized
+            // Response sent in JSON format and deserialized.
             try
             {
                 var deserializer = new JsonDeserializer();
-                var ret = deserializer.Deserialize<T>(response);//  JsonConvert.DeserializeObject<T>(response.Content);
+                var ret = deserializer.Deserialize<T>(response);    // JsonConvert.DeserializeObject<T>(response.Content);
                 return ret;
             }
             catch (Exception ex)
             {
-                Trace.TraceError("Exception in YammerRequest: {0} | Source:{1} | StackTrace:{2}", ex.Message, ex.Source, ex.StackTrace);
+                Trace.TraceError("Yammer Response:{0} | Exception:{1} | Source:{2} | StackTrace:{3}", response.Content, ex.Message, ex.Source, ex.StackTrace);
                 return null;
             }
         }
 
         /// <summary>
-        /// Post any type of message (eg simple vs with opengraph)
+        /// Post any type of message.
         /// </summary>
         /// <param name="obj">Message container</param>
-        /// <returns>A message container completed</returns>
+        /// <returns>The message object (with its returned ID)</returns>
         private MessagesRootObject PostAnyMessage(object obj)
         {
             return (this.YammerRequest<MessagesRootObject>(PostMessageService, Method.POST, obj));

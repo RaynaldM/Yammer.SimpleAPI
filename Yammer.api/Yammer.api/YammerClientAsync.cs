@@ -1,23 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using RestSharp;
 using RestSharp.Deserializers;
+
 
 namespace Yammer.api
 {
     public partial class YammerClient
     {
         /// <summary>
-        /// Query Yammer and parse JSON response in define object
+        /// Query Yammer and parse JSON response to define the object.
         /// </summary>
         /// <typeparam name="T">Object type Expected</typeparam>
-        /// <param name="restService">Service uri to query</param>
-        /// <param name="method">Get or Post</param>
+        /// <param name="restService">Service URI to query</param>
+        /// <param name="method">GET or POST</param>
         /// <param name="objectForRequest">Other parameters embedded in an object</param>
-        /// <param name="getAuth">Try to get token</param>
-        /// <returns>The JSON response parse in T type</returns>
+        /// <param name="getAuth">Try to get the access token</param>
+        /// <returns>The JSON response parse of type T</returns>
         public Task<T> YammerRequestAsync<T>(String restService, Method method = Method.GET, Object objectForRequest = null, Boolean getAuth = true)
             where T : class
         {
@@ -33,25 +35,25 @@ namespace Yammer.api
             }
             if (objectForRequest != null)
             {
-                //Request Format set to JSON and AddBody instead of AddObject 
-                //are necessary to allow posting complex objects (such as the Activity object)
+                // Request format set to JSON and AddBody instead of AddObject 
+                // is necessary to allow posting complex objects (such as the Activity object).
                 request.RequestFormat = DataFormat.Json;
                 request.AddBody(objectForRequest);
             }
             var tcs = new TaskCompletionSource<T>();
 
-            this.YammerRestClient.ExecuteAsync(request, reponseasync =>
+            this.YammerRestClient.ExecuteAsync(request, responseasync =>
               {
                   // response sent in JSON format and deserialized
                   try
                   {
                       var deserializer = new JsonDeserializer();
-                      var ret = deserializer.Deserialize<T>(reponseasync);
+                      var ret = deserializer.Deserialize<T>(responseasync);
                       tcs.SetResult(ret);
                   }
                   catch (Exception ex)
                   {
-                      Trace.TraceError("Exception in YammerRequestAsync: {0} | Source:{1} | StackTrace:{2}", ex.Message, ex.Source, ex.StackTrace);
+                      Trace.TraceError("Yammer Response:{0} | Exception:{1} | Source:{2} | StackTrace:{3}", responseasync.Content, ex.Message, ex.Source, ex.StackTrace);
                       throw;
                   }
               });
@@ -59,22 +61,22 @@ namespace Yammer.api
         }
 
         /// <summary>
-        /// Post any type of message (eg simple vs with opengraph)
+        /// Post any type of message.
         /// </summary>
         /// <param name="obj">Message container</param>
-        /// <returns>A message container completed</returns>
+        /// <returns>The threaded task's message object (with its returned ID)</returns>
         private Task<MessagesRootObject> PostAnyMessageAsync(object obj)
         {
             return (this.YammerRequestAsync<MessagesRootObject>(PostMessageService, Method.POST, obj));
         }
 
         /// <summary>
-        /// Post a simple message
+        /// Post a simple group message.
         /// </summary>
-        /// <param name="messageToPost">Body</param>
-        /// <param name="groupId">The group where I post the message</param>
-        /// <param name="topic">topic of the message</param>
-        /// <returns>a completed message (with the id)</returns>
+        /// <param name="messageToPost">The message body</param>
+        /// <param name="groupId">The group where the message will appear</param>
+        /// <param name="topic">The message topic</param>
+        /// <returns>The threaded task's message object (with its returned ID)</returns>
         public Task<MessagesRootObject> PostMessageAsync(String messageToPost, long groupId, String topic)
         {
             return this.PostAnyMessageAsync(new { body = messageToPost, group_id = groupId, topic1 = topic });
@@ -83,11 +85,11 @@ namespace Yammer.api
         /// <summary>
         /// Post a message with an open graph object
         /// </summary>
-        /// <param name="messageToPost">Body</param>
-        /// <param name="groupId">The group where I post the message</param>
-        /// <param name="topic">topic of the message</param>
-        /// <param name="og">OpenGraph object</param>
-        /// <returns></returns>
+        /// <param name="messageToPost">The message body</param>
+        /// <param name="groupId">The group where the message will appear</param>
+        /// <param name="topic">The message topic</param>
+        /// <param name="og">The OpenGraph object</param>
+        /// <returns>The threaded task's message object (with its returned ID)</returns>
         public Task<MessagesRootObject> PostMessageAsync(String messageToPost, long groupId, String topic, OpenGraphInMessage og)
         {
             return this.PostAnyMessageAsync(new
@@ -107,13 +109,13 @@ namespace Yammer.api
         }
 
         /// <summary>
-        /// Post a message with an open graph object
+        /// Post a message with an OpenGraph object and multiple topics.
         /// </summary>
-        /// <param name="messageToPost">Body</param>
-        /// <param name="groupId">The group where I post the message</param>
-        /// <param name="topics">List of topics</param>
-        /// <param name="og">OpenGraph object</param>
-        /// <returns></returns>
+        /// <param name="messageToPost">The messsage body</param>
+        /// <param name="groupId">The group where the message will appear</param>
+        /// <param name="topics">The list of topics</param>
+        /// <param name="og">The OpenGraph object</param>
+        /// <returns>The threaded task's message object (with its returned ID)</returns>
         public Task<MessagesRootObject> PostMessageAsync(String messageToPost, long groupId, List<String> topics, OpenGraphInMessage og)
         {
             return this.PostAnyMessageAsync(new
@@ -132,6 +134,34 @@ namespace Yammer.api
                 og.og_meta,
                 og.og_fetch
             });
+        }
+
+        /// <summary>
+        /// Post a private message to specific user.
+        /// </summary>
+        /// <param name="messageToPost">The message body</param>
+        /// <param name="userId">The receipient's ID</param>
+        /// <param name="topic">The message topic (NULL for the private message type)</param>
+        /// <returns>The threaded task's message object (with its returned ID)</returns>
+        public Task<MessagesRootObject> PostInstantMessageAsync(string messageToPost, long userId, string topic = null)
+        {
+            return this.PostAnyMessageAsync(new { body = messageToPost, direct_to_id = userId, topic1 = topic });
+        }
+
+        /// <summary>
+        /// Retrieve all private message objects, based on the DateTime argument.
+        /// </summary>
+        /// <param name="newerThan">The cutoff timestamp (UTC formatted)</param>
+        /// <returns>The threaded task's list of message objects</returns>
+        public Task<List<Message>> RetrieveInstantMessagesAsync(DateTime newerThan)
+        {
+            var tcs = new TaskCompletionSource<List<Message>>();
+            var messages = this.YammerRequest<MessagesRootObject>(PrivateMessageService, Method.GET).messages;
+            List<Message> newerMessages = (from m in messages
+                                           where DateTime.Parse(m.created_at).ToUniversalTime() >= newerThan.ToUniversalTime()
+                                           select m).ToList();
+            tcs.SetResult(newerMessages);
+            return tcs.Task;
         }
 
     }
