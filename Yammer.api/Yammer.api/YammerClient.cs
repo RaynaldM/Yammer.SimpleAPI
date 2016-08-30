@@ -373,7 +373,7 @@ namespace Yammer.api
         /// <returns>A list of message objects</returns>
         public List<Message> RetrieveInstantMessages(DateTime newerThan)
         {
-            var messages = this.YammerRequest<MessagesRootObject>(PrivateMessageService, Method.GET).messages;
+            var messages = this.YammerRequest<MessagesRootObject>(PrivateMessageService).messages;
             List<Message> newerMessages = (from m in messages
                                            where DateTime.Parse(m.created_at).ToUniversalTime() >= newerThan.ToUniversalTime()
                                            select m).ToList();
