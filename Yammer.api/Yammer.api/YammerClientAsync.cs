@@ -67,7 +67,7 @@ namespace Yammer.api
         /// <returns>The threaded task's message object (with its returned ID)</returns>
         private Task<MessagesRootObject> PostAnyMessageAsync(object obj)
         {
-            return (this.YammerRequestAsync<MessagesRootObject>(PostMessageService, Method.POST, obj));
+            return (this.YammerRequestAsync<MessagesRootObject>(BasicMessageService, Method.POST, obj));
         }
 
         /// <summary>
@@ -149,19 +149,73 @@ namespace Yammer.api
         }
 
         /// <summary>
-        /// Retrieve all private message objects, based on the DateTime argument.
+        /// Retrieve private message objects, based on the DateTime argument.
         /// </summary>
         /// <param name="newerThan">The cutoff timestamp (UTC formatted)</param>
         /// <returns>The threaded task's list of message objects</returns>
         public Task<List<Message>> RetrieveInstantMessagesAsync(DateTime newerThan)
         {
             var tcs = new TaskCompletionSource<List<Message>>();
-            var messages = this.YammerRequest<MessagesRootObject>(PrivateMessageService).messages;
-            List<Message> newerMessages = (from m in messages
+            int? messageLimit = 100;                                        // To minimize pull times, limiting to a 100-message default to parse.
+            if (this.MessageRetrievalLimit != null)
+            {
+                messageLimit = this.MessageRetrievalLimit;
+            }
+
+            var messages = this.GetAnyPrivateMessagesAsync(new { limit = messageLimit });
+            List<Message> newerMessages = (from m in messages.Result
                                            where DateTime.Parse(m.created_at).ToUniversalTime() >= newerThan.ToUniversalTime()
                                            select m).ToList();
             tcs.SetResult(newerMessages);
             return tcs.Task;
+        }
+
+        /// <summary>
+        /// Retrieve basic message objects, based on the DateTime argument.
+        /// </summary>
+        /// <param name="newerThan">The cutoff timestamp (UTC formatted)</param>
+        /// <returns>The threaded task's list of message objects</returns>
+        public Task<List<Message>> RetrieveBasicMessagesAsync(DateTime newerThan)
+        {
+            var tcs = new TaskCompletionSource<List<Message>>();
+            int? messageLimit = 100;                                        // To minimize pull times, limiting to a 100-message default to parse.
+            if (this.MessageRetrievalLimit != null)
+            {
+                messageLimit = this.MessageRetrievalLimit;
+            }
+
+            var messages = this.GetAnyBasicMessagesAsync(new { limit = messageLimit });
+            List<Message> newerMessages = (from m in messages.Result
+                                           where DateTime.Parse(m.created_at).ToUniversalTime() >= newerThan.ToUniversalTime()
+                                           select m).ToList();
+            tcs.SetResult(newerMessages);
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Retrieve any type of basic messages.
+        /// </summary>
+        /// <param name="obj">Message container</param>
+        /// <returns>The threaded task's list of message objects</returns>
+        private Task<List<Message>> GetAnyBasicMessagesAsync(object obj)
+        {
+            var tcs = new TaskCompletionSource<List<Message>>();
+            var messages = this.YammerRequestAsync<MessagesRootObject>(BasicMessageService, Method.GET, obj).Result.messages;
+            tcs.SetResult(messages);
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Retrieve any type of private messages.
+        /// </summary>
+        /// <param name="obj">Message container</param>
+        /// <returns>The threaded task's list of message objects</returns>
+        private Task<List<Message>> GetAnyPrivateMessagesAsync(object obj)
+        {
+            var tcs = new TaskCompletionSource<List<Message>>();
+            var messages = this.YammerRequestAsync<MessagesRootObject>(PrivateMessageService, Method.GET, obj).Result.messages;
+            tcs.SetResult(messages);
+            return tcs.Task;            
         }
 
     }

@@ -43,9 +43,9 @@ namespace Yammer.api
         /// </summary>
         private const String CurrentUserService = "api/v1/users/current.json";
         /// <summary>
-        /// Defines URI of service which posts and gets messages.
+        /// Defines URI of service which handles group messages.
         /// </summary>
-        private const String PostMessageService = "api/v1/messages.json";
+        private const String BasicMessageService = "api/v1/messages.json";
         /// <summary>
         /// Defines URI of service which handles private (instant) messages.
         /// </summary>
@@ -62,6 +62,10 @@ namespace Yammer.api
         /// Persistent REST client for Yammer.
         /// </summary>
         private RestClient _yammerRestClient;
+        /// <summary>
+        /// Defines the maximum number of messages that can be retrieved when pulling.
+        /// </summary>
+        public int? MessageRetrievalLimit;
         /// <summary>
         /// Accessor to a singleton request (RestSharp) object.
         /// </summary>
@@ -272,11 +276,11 @@ namespace Yammer.api
         /// <summary>
         /// Send an invitation to a new user.
         /// </summary>
-        /// <param name="mailAdress">Email address of the new user</param>
+        /// <param name="mailAddress">Email address of the new user</param>
         /// <returns>Status == OK if it's completed</returns>
-        public SendInvitationResult SendInvitation(String mailAdress)
+        public SendInvitationResult SendInvitation(String mailAddress)
         {
-            return (this.YammerRequest<SendInvitationResult>(InvitationsService, Method.POST, new { email = mailAdress }));
+            return (this.YammerRequest<SendInvitationResult>(InvitationsService, Method.POST, new { email = mailAddress }));
         }
 
         /// <summary>
@@ -367,13 +371,38 @@ namespace Yammer.api
         }
 
         /// <summary>
-        /// Retrieve all private message objects, based on the DateTime argument.
+        /// Retrieve private message objects, based on the DateTime argument.
         /// </summary>
         /// <param name="newerThan">The cutoff timestamp (UTC formatted)</param>
         /// <returns>A list of message objects</returns>
         public List<Message> RetrieveInstantMessages(DateTime newerThan)
+        {           
+            int? messageLimit = 100;                                        // To minimize pull times, limiting to a 100-message default to parse.
+            if (this.MessageRetrievalLimit != null)
+            {
+                messageLimit = this.MessageRetrievalLimit;
+            } 
+
+            var messages = this.GetAnyPrivateMessages(new { limit = messageLimit });     
+            List<Message> newerMessages = (from m in messages
+                                           where DateTime.Parse(m.created_at).ToUniversalTime() >= newerThan.ToUniversalTime()
+                                           select m).ToList();
+            return newerMessages;
+        }
+
+        /// <summary>
+        /// Retrieve basic message objects, based on the DateTime argument. 
+        /// </summary>
+        /// <param name="newerThan">The cutoff timestamp (UTC formatted)</param>
+        /// <returns>A list of message objects</returns>
+        public List<Message> RetrieveBasicMessages(DateTime newerThan)
         {
-            var messages = this.YammerRequest<MessagesRootObject>(PrivateMessageService).messages;
+            int? messageLimit = 100;                                        // To minimize pull times, limiting to a 100-message default to parse.
+            if (this.MessageRetrievalLimit != null)
+            {
+                messageLimit = this.MessageRetrievalLimit;
+            }
+            var messages = this.GetAnyBasicMessages(new { limit = messageLimit });       
             List<Message> newerMessages = (from m in messages
                                            where DateTime.Parse(m.created_at).ToUniversalTime() >= newerThan.ToUniversalTime()
                                            select m).ToList();
@@ -503,7 +532,27 @@ namespace Yammer.api
         /// <returns>The message object (with its returned ID)</returns>
         private MessagesRootObject PostAnyMessage(object obj)
         {
-            return (this.YammerRequest<MessagesRootObject>(PostMessageService, Method.POST, obj));
+            return (this.YammerRequest<MessagesRootObject>(BasicMessageService, Method.POST, obj));
+        }
+
+        /// <summary>
+        /// Retrieve any type of basic messages.
+        /// </summary>
+        /// <param name="obj">Message container</param>
+        /// <returns>A list of message objects</returns>
+        private List<Message> GetAnyBasicMessages(object obj)
+        {
+            return (this.YammerRequest<MessagesRootObject>(BasicMessageService, Method.GET, obj).messages);
+        }
+
+        /// <summary>
+        /// Retrieve any type of private messages.
+        /// </summary>
+        /// <param name="obj">Message container</param>
+        /// <returns>A list of message objects</returns>
+        private List<Message> GetAnyPrivateMessages(object obj)
+        {
+            return (this.YammerRequest<MessagesRootObject>(PrivateMessageService, Method.GET, obj).messages);
         }
 
     }
