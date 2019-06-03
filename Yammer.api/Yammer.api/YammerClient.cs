@@ -258,7 +258,7 @@ namespace Yammer.api
         /// </summary>
         /// <param name="userId">The User object ID</param>
         /// <returns>The access token string</returns>
-        private String AskImpersonateToken(int userId)
+        private String AskImpersonateToken(long userId)
         {
             // TO-DO : Must be finished when we have sufficient rights.
             var request = new RestRequest { Resource = ImpersonateTokenService, Method = Method.POST };

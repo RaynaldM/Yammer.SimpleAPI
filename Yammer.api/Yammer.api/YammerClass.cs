@@ -107,7 +107,7 @@ namespace Yammer.api
         public string interests { get; set; }
         public string network_name { get; set; }
         public string significant_other { get; set; }
-        public int id { get; set; }
+        public long id { get; set; }
         public List<string> network_domains { get; set; }
         public string kids_names { get; set; }
         public string name { get; set; }
@@ -148,7 +148,7 @@ namespace Yammer.api
         public string interests { get; set; }
         public string significant_other { get; set; }
         public string last_name { get; set; }
-        public int id { get; set; }
+        public long id { get; set; }
         public string job_title { get; set; }
         public string verified_admin { get; set; }
         public Stats stats { get; set; }
@@ -188,7 +188,7 @@ namespace Yammer.api
         public bool is_group_enabled { get; set; }
         public string created_at { get; set; }
         public string navigation_background_color { get; set; }
-        public int id { get; set; }
+        public long id { get; set; }
         public bool paid { get; set; }
         public string name { get; set; }
         public string header_background_color { get; set; }
@@ -256,7 +256,7 @@ namespace Yammer.api
         public Body body { get; set; }
         public string client_url { get; set; }
         public string web_url { get; set; }
-        public int id { get; set; }
+        public long id { get; set; }
         public int sender_id { get; set; }
         public object replied_to_id { get; set; }
         public string client_type { get; set; }
@@ -295,7 +295,7 @@ namespace Yammer.api
         public string type { get; set; }
         public string web_url { get; set; }
         public string name { get; set; }
-        public int id { get; set; }
+        public long id { get; set; }
         public string url { get; set; }
         public string permalink { get; set; }
         public string normalized_name { get; set; }
